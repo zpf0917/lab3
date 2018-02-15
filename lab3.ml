@@ -151,19 +151,19 @@ below are some other values you might find helpful.
     240 | 130 | 240 | Violet
 ......................................................................*)
 
-let convert_to_rgb (clr: color) : color =
+let convert_to_rgb (clr: color) : int * int * int =
   match clr with
   | Simple a ->
       (match a with
-      | Orange -> RGB(255, 165, 0)
-      | Yellow -> RGB(255, 255, 0)
-      | Indigo -> RGB(75, 0, 130)
-      | Violet -> RGB(240, 130, 240)
-      | Red -> RGB(255, 0, 0)
-      | Blue -> RGB(0, 0, 255)
-      | Green -> RGB(0, 255, 0)
-      | Crimson -> RGB(255, 2, 2))
-  | RGB (a,b,c) -> RGB(a,b,c)
+      | Orange -> (255, 165, 0)
+      | Yellow -> (255, 255, 0)
+      | Indigo -> (75, 0, 130)
+      | Violet -> (240, 130, 240)
+      | Red -> (255, 0, 0)
+      | Blue -> (0, 0, 255)
+      | Green -> (0, 255, 0)
+      | Crimson -> (255, 2, 2))
+  | RGB (a,b,c) -> (a,b,c)
 ;;
 
 (* If we want to blend two colors, we might be tempted to average each
