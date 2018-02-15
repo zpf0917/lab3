@@ -153,7 +153,7 @@ below are some other values you might find helpful.
 
 let convert_to_rgb (clr: color) : color =
   match clr with
-  | Simple(a) ->
+  | Simple a ->
       (match a with
       | Orange -> RGB(255, 165, 0)
       | Yellow -> RGB(255, 255, 0)
@@ -163,7 +163,7 @@ let convert_to_rgb (clr: color) : color =
       | Blue -> RGB(0, 0, 255)
       | Green -> RGB(0, 255, 0)
       | Crimson -> RGB(255, 2, 2))
-  | RGB(a,b,c) -> RGB(a,b,c)
+  | RGB (a,b,c) -> RGB(a,b,c)
 ;;
 
 (* If we want to blend two colors, we might be tempted to average each
