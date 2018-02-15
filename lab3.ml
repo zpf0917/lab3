@@ -17,7 +17,7 @@ framework on the course grading server. Exercises 0, 1, 7, and 10 are
 required for full compilation.
 
  *)
-     
+
 (*======================================================================
 Part 1: Variants and invariants (two separate concepts)
 
@@ -33,7 +33,7 @@ create a new type.
 
 You might be tempted to do something simple like
 
-  type person = { name : string; 
+  type person = { name : string;
                   favorite : string;
                   birthday : string; } ;;
 
@@ -56,7 +56,8 @@ be any of the following options: red, crimson, orange, yellow, green,
 blue, indigo, or violet.
 ......................................................................*)
 
-type color_label = NotImplemented ;;
+type color_label = Red | Crimson | Orange | Yellow | Green |
+                  Blue | Indigo | Violet ;;
 
 (* You've just defined a new variant type! But this is an overly
 simplistic representation of colors. Let's make it more usable.
@@ -91,7 +92,7 @@ channels. You'll want to use Simple and RGB as the value constructors
 in this new variant type.
 ......................................................................*)
 
-type color = NotImplemented ;;
+type color = Simple of color_label | RGB of int * int * int ;;
 
 (* Note that there is an important assumption about the RGB values
 that determine whether a color is valid or not. The RGB type contains
@@ -117,8 +118,14 @@ an Invalid_Color exception with a useful message.
 
 exception Invalid_Color of string ;;
 
-let valid_rgb = 
-  fun _ -> failwith "valid_rgb not implemented" ;;
+let valid_rgb (clr : color) : color=
+  match clr with
+  | Simple(a) -> Simple(a)
+  | RGB(a,b,c) ->
+      if (a<256 && a>=0) && (b<256 && b>=0) && (c<256 && c>=0)
+      then RGB(a,b,c)
+      else raise (Invalid_Color "Not color")
+;;
 
 (*......................................................................
 Exercise 3: Write a function, make_color, that accepts three integers
@@ -126,8 +133,8 @@ for the channel values and returns a value of the color type. Be sure
 to verify the invariant.
 ......................................................................*)
 
-let make_color = 
-  fun _ -> failwith "make_color not implemented" ;;
+let make_color a b c : color =
+  valid_rgb(RGB(a,b,c)) ;;
 
 (*......................................................................
 Exercise 4: Write a function, convert_to_rgb, that accepts a color and
@@ -144,8 +151,20 @@ below are some other values you might find helpful.
     240 | 130 | 240 | Violet
 ......................................................................*)
 
-let convert_to_rgb = 
-  fun _ -> failwith "convert_to_rgb not implemented" ;;
+let convert_to_rgb (clr: color) : color =
+  match clr with
+  | Simple(a) ->
+      (match a with
+      | Orange -> RGB(255, 165, 0)
+      | Yellow -> RGB(255, 255, 0)
+      | Indigo -> RGB(75, 0, 130)
+      | Violet -> RGB(240, 130, 240)
+      | Red -> RGB(255, 0, 0)
+      | Blue -> RGB(0, 0, 255)
+      | Green -> RGB(0, 255, 0)
+      | Crimson -> RGB(255, 2, 2))
+  | RGB(a,b,c) -> RGB(a,b,c)
+;;
 
 (* If we want to blend two colors, we might be tempted to average each
 of the individual color channels. This might be fine, but a quirk in
@@ -169,7 +188,7 @@ and returns an integer whose result matches the calculation above. Be
 sure to round your result when converting back to an integer.
 ......................................................................*)
 
-let blend_channel = 
+let blend_channel =
   fun _ -> failwith "blend_channel not implemented" ;;
 
 (*......................................................................
@@ -178,10 +197,10 @@ blending two colors. Do you need to do anything special to preserve
 the invariant in this function after blending?
 ......................................................................*)
 
-let blend = 
+let blend =
   fun _ -> failwith "blend not implemented" ;;
 
-   
+
 (*======================================================================
 Part 2: Records
 
@@ -205,7 +224,13 @@ should be. Then, consider the implications of representing the overall
 data type as a tuple or a record.
 ......................................................................*)
 
-type date = NotImplemented ;;
+type date = {
+  year : int;
+  month : int;
+  day : int;
+} ;;
+
+
 
 (* After you've thought it through, look up the Date module in the
 OCaml documentation to see how this was implemented there. If you
@@ -247,8 +272,33 @@ the invariant is violated, and returns the date if valid.
 
 exception Invalid_Date of string ;;
 
-let valid_date = 
-  fun _ -> failwith "valid_date not implemented" ;;
+let valid_date (dt: date) : date =
+  let lp_year (dt: date) : bool =
+    if dt.year mod 4 <> 0 then false
+    else if dt.year mod 100 <> 0 then true
+    else if dt.year mod 400 <> 0 then false
+    else true
+  in
+  match dt.month with
+  | 1 | 3 | 5 | 7 | 8 | 10 | 12 ->
+    if (dt.day < 32) && (dt.day > 0) then
+      dt
+    else
+      raise (Invalid_Date "not valid date")
+  | 4 | 6 | 9 | 11  ->
+    if (dt.day < 31) && (dt.day > 0) then
+      dt
+    else
+      raise (Invalid_Date "not valid date")
+  | 2 ->
+    if (dt.day < 29) && (dt.day > 0) then
+      dt
+    else if (dt.day = 29) then
+      if lp_year dt = true then dt
+      else raise (Invalid_Date "not valid date")
+    else raise (Invalid_Date "not valid date")
+  | _ -> raise (Invalid_Date "not valid date")
+;;
 
 
 (*======================================================================
@@ -262,7 +312,11 @@ Exercise 10: Define a person record type. Use the field names "name",
 "favorite", and "birthdate".
 ......................................................................*)
 
-type person = NotImplemented ;;
+type person = {
+  name : string;
+  favorite : color;
+  birthdate : date;
+} ;;
 
 (* Let's now do something with these person values. We'll create a
 data structure that allows us to model simple familial relationships.
@@ -301,8 +355,10 @@ ensure the invariants are preserved for color and date, use them here
 as well.
 ......................................................................*)
 
-let new_child = 
-  fun _ -> failwith "new_child not implemented" ;;
+let new_child (nm: string) (clr: color) (dt: date) : family=
+  let ps : person = {name = nm; favorite = (valid_rgb clr);
+                    birthdate = (valid_date dt);}
+  in Single (ps);;
 
 (*......................................................................
 Exercise 12: Write a function that allows a person to marry in to a
@@ -313,9 +369,11 @@ is already made up of a married couple?
 
 exception Family_Trouble of string ;;
 
-let marry = 
-  fun _ -> failwith "marry not implemented" ;;
-
+let marry (fml: family) (psn: person) : family=
+  match fml with
+  | Single psn1 -> Family (psn1, psn, [])
+  | Family _ -> raise (Family_Trouble "you r fucked")
+;;
 (*......................................................................
 Exercise 13: Write a function that accepts two families, and returns
 an enlarged family with the second family added as a child of the
@@ -325,15 +383,18 @@ assumptions provided in the type definition of family to determine how
 to behave in corner cases.
 ......................................................................*)
 
-let add_to_family = 
-  fun _ -> failwith "add_to_family not implemented" ;;
+let add_to_family (fm1: family) (fm2: family) : family=
+  match fm1 with
+  | Single psn1 -> raise (Family_Trouble "you r fucked")
+  | Family (ps1,ps2,fm) -> Family (ps1,ps2,fm @ [fm2])
+   ;;
 
 (*......................................................................
 Exercise 14: Complete the function below that counts the number of
 people in a given family. Be sure you count all spouses and children.
 ......................................................................*)
 
-let count_people = 
+let count_people =
   fun _ -> failwith "count_people not implemented" ;;
 
 (*......................................................................
@@ -353,7 +414,7 @@ inequality. You may be accustomed to other operators, like, "==" and
 the Pervasives module can help explain why.)
 ......................................................................*)
 
-let find_parents = 
+let find_parents =
   fun _ -> failwith "find_parents not implemented" ;;
 
 
@@ -397,7 +458,7 @@ edges.  The parameters you need to accept are, in order, the graph, a
 person and another person.
 ......................................................................*)
 
-let marry_graph = 
+let marry_graph =
   fun _ -> failwith "marry_graph not implemented" ;;
 
 (*There are far fewer restrictions compared to our rigidly-defined
@@ -418,7 +479,7 @@ that includes the relationship whereby the third person is a child of
 the first two.
 ......................................................................*)
 
-let add_child_to_graph = 
+let add_child_to_graph =
   fun _ -> failwith "add_child_to_graph not implemented" ;;
 
 (*......................................................................
@@ -429,5 +490,5 @@ a string representing the name of the person whose parents you want
 to find, returning a person list for the parents.
 ......................................................................*)
 
-let find_parents_graph = 
+let find_parents_graph =
   fun _ -> failwith "find_parents_graph not implemented" ;;
